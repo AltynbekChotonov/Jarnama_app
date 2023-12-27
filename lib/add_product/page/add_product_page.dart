@@ -1,11 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:flutter/cupertino.dart';
+
+import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
 import 'package:jarnama_app/components/custom_text_field.dart';
 import 'package:jarnama_app/service/data_time_service.dart';
+import 'package:jarnama_app/service/image_picker_service.dart';
 
 import 'add_product.dart';
 
+// ignore: must_be_immutable
 class AddProductPage extends StatelessWidget {
   AddProductPage({super.key});
 
@@ -17,6 +23,7 @@ class AddProductPage extends StatelessWidget {
   final _userName = TextEditingController();
   final _addess = TextEditingController();
   final _prise = TextEditingController();
+  List<XFile> images = [];
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +43,16 @@ class AddProductPage extends StatelessWidget {
             CustomtextField(
                 maxLines: 5, controller: _description, hinText: 'description'),
             const SizedBox(height: 12),
+            imageContainer(
+              images: images,
+              onPicked: (value) => images = value,
+            ),
+            const SizedBox(height: 12),
             CustomtextField(
                 controller: _dateTime,
                 hinText: 'dateTime',
                 focusNode: FocusNode(),
-                prefixIcon: Icon(Icons.calendar_month),
+                prefixIcon: const Icon(Icons.calendar_month),
                 onTap: () async {
                   await DataTimeservice.showeDataTimePicker(
                     context,
@@ -63,6 +75,60 @@ class AddProductPage extends StatelessWidget {
               label: const Text('Add Firestore'),
             ),
           ]),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class imageContainer extends StatefulWidget {
+  imageContainer({
+    Key? key,
+    required this.images,
+    required this.onPicked,
+  }) : super(key: key);
+
+  List<XFile> images;
+  final void Function(List<XFile> images) onPicked;
+
+  @override
+  State<imageContainer> createState() => _imageContainerState();
+}
+
+class _imageContainerState extends State<imageContainer> {
+  final service = ImagePickerService();
+
+  @override
+  Widget build(BuildContext context) {
+    print('----->');
+    return Container(
+      width: double.infinity,
+      height: 300,
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: widget.images.isNotEmpty
+          ? Wrap(
+              children: widget.images
+                  .map((e) => Expanded(child: Image.file(File(e.path))))
+                  .toList(),
+            )
+          : Center(
+              child: IconButton(
+                icon: const Icon(
+                  Icons.camera_enhance,
+                  size: 50,
+                ),
+                onPressed: () async {
+                  final value = await service.pickImages();
+                  if (value != null) {
+                    widget.onPicked(value);
+                    widget.images = value;
+                    setState(() {});
+                  }
+                },
+              ),
+            ),
     );
   }
 }
