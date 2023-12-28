@@ -17,12 +17,6 @@ class DataTimeservice {
           maximumDate: DateTime(2025),
           mode: CupertinoDatePickerMode.date,
           onDateTimeChanged: onchanged,
-          // (value) {
-          //   _dateTime.text = DateFormat(
-          //     'd MMM,y',
-          //   ).format(value);
-          //   //_dateTime.text = value.toString();
-          // },
           initialDateTime: DateTime.now(),
           minimumYear: 2000,
           maximumYear: 3000,
